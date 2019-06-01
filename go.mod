@@ -1,4 +1,4 @@
-module github.xmlking.com/go-atk
+module github.com/lakstap/go-atk
 
 go 1.12
 

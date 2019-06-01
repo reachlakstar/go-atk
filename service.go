@@ -11,7 +11,7 @@ import (
 	"time"
 	"github.com/patrickmn/go-cache"
 
-	"github/lakstap/go-atk/database"
+	"github.com/lakstap/go-atk/database"
 )
 
 // Options is a set of options to be passed to Run

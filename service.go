@@ -14,7 +14,7 @@ import (
 	"github.com/lakstap/go-atk/database"
 )
 
-// Options is a set of options to be passed to Run
+//ATK  Options is a set of options to be passed to Run
 type ATKGrpcServiceOption struct {
 	// Grpc Service Name
 	ServiceName string

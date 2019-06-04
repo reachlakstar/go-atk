@@ -2,6 +2,8 @@
 
 This is the GO API Project built using Go-API Tool Kit
 
+![ATK Architecture](Arch.png)
+
 ## Install Dependencies
 ```
 # install go generate files (if not installed) for swagger

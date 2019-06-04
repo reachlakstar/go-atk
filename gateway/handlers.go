@@ -103,11 +103,6 @@ func DefaultAuthMiddleware(ctxt context.Context, next http.Handler) http.Handler
 func AuthMiddleware(ctxt context.Context, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		if strings.Contains(r.URL.Path, "/project/") {
-			//glog.Infof("Executing Authentication for %s", r.URL.Path)
-			//fmt.Println("Authenticating any request which starts with ")
-
-			// add transport for self-signed certificate to context
 			tr := &http.Transport{
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 			}
@@ -136,7 +131,6 @@ func AuthMiddleware(ctxt context.Context, next http.Handler) http.Handler {
 				http.Error(w, "An authorization header is required: ", http.StatusUnauthorized)
 				return
 			}
-		}
 		next.ServeHTTP(w, r)
 	})
 }

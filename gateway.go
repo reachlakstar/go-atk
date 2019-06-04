@@ -13,6 +13,7 @@ import (
 	"github.com/go-log/log"
 	"github.com/lakstap/go-atk/gateway"
 	"strings"
+	"reflect"
 )
 
 var (
@@ -59,7 +60,6 @@ func WithEndpointHandlerOption(handler EndpointHandler) EndpointHandlerOption {
 	}
 }
 
-
 // New ATK Gateway returns a new gateway with default values.
 func NewATKGateway(opts ...EndpointHandlerOption) *ATKGateway {
 
@@ -78,7 +78,7 @@ func NewATKGateway(opts ...EndpointHandlerOption) *ATKGateway {
 
 // Run starts a HTTP server and blocks while running if successful.
 // The server will be shutdown when "ctx" is canceled.
-func (gw *ATKGateway) RunGateway(ctx context.Context, httpsEnabled ...bool) error {
+func (gw *ATKGateway) RunGateway(ctx context.Context, options ...interface{}) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -88,9 +88,14 @@ func (gw *ATKGateway) RunGateway(ctx context.Context, httpsEnabled ...bool) erro
 	if err != nil {
 		return err
 	}
+	if len(options) > 0 && options[0] == true {
+		urls := strings.Split(reflect.ValueOf(options[1]).String(), ":")
+		for _, url := range urls {
+			mux.Handle("/"+url+"/", gateway.AuthMiddleware(ctx, gwy))
+		}
+	}
 
-	mux.Handle("/project/", gateway.AuthMiddleware(ctx, gwy))
-	mux.Handle("/health/", gateway.DefaultAuthMiddleware(ctx, gwy))
+	//mux.Handle("/health/", gateway.DefaultAuthMiddleware(ctx, gwy))
 	mux.Handle("/", gwy)
 
 	gateway.SwaggerServer(mux)
@@ -108,10 +113,10 @@ func (gw *ATKGateway) RunGateway(ctx context.Context, httpsEnabled ...bool) erro
 		}
 	}()
 	isHTTPSEnabled := false;
-	if len(httpsEnabled) > 0 {
-		isHTTPSEnabled = httpsEnabled[0]
+	if len(options) > 0 && options[2] == true {
+		isHTTPSEnabled = reflect.ValueOf(options[2]).Bool()
 	}
-	log.Logf("Server Started listening at the address at %s is HTTPS Enable (%s)", gw.Addr, isHTTPSEnabled)
+	log.Logf("Server Started  listening at the address at %s is HTTPS Enable (%s)", gw.Addr, isHTTPSEnabled)
 	if isHTTPSEnabled {
 		if err := s.ListenAndServeTLS("/etc/secrets/server.crt", "/etc/secrets/server.key"); err != http.ErrServerClosed {
 			glog.Errorf("Failed to listen and serve: %v", err)
@@ -126,7 +131,7 @@ func (gw *ATKGateway) RunGateway(ctx context.Context, httpsEnabled ...bool) erro
 	return nil
 }
 
-// newGateway returns a new gateway server which translates HTTP into gRPC.
+// newGateway returns a  gateway server which translates HTTP into gRPC.
 func newGateway(ctx context.Context, handlers []EndpointHandler, opts []gwruntime.ServeMuxOption) (http.Handler, error) {
 	opts = append(opts, gwruntime.WithMetadata(gateway.ForwardAuthenticationMetadata))
 	opts = append(opts, gwruntime.WithMarshalerOption(gwruntime.MIMEWildcard, &gwruntime.JSONPb{OrigName: true, EmitDefaults: true}))

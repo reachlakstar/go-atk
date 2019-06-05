@@ -24,6 +24,9 @@ type ATKGrpcServiceOption struct {
 
 	// Type of GRPC Service ( Database )
 	ServiceType string
+
+	//Address GRPC Service binded
+	Address string
 }
 
 // ATK Grpc Service
@@ -44,6 +47,7 @@ func NewATKGrpcService(opts ATKGrpcServiceOption) *ATKGrpcService {
 		Options:  opts,
 		ATKCache: cache.New(5*time.Minute, 10*time.Minute),
 		Service: grpc.NewService(
+			micro.Address(opts.Address),
 			micro.Flags(
 				cli.StringFlag{
 					Name:  "db_config_path",
